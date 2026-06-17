@@ -216,7 +216,14 @@ class Handler(BaseHTTPRequestHandler):
         rel = self.path.lstrip("/").split("?")[0]
         f = HERE / rel
         if f.exists() and f.is_file():
-            ctype = "application/json" if f.suffix == ".json" else "text/plain"
+            ctypes = {
+                ".html": "text/html; charset=utf-8",
+                ".css": "text/css; charset=utf-8",
+                ".js": "application/javascript; charset=utf-8",
+                ".json": "application/json",
+                ".svg": "image/svg+xml",
+            }
+            ctype = ctypes.get(f.suffix, "text/plain; charset=utf-8")
             return self._send(200, f.read_text(encoding="utf-8"), ctype)
 
         self._send(404, json.dumps({"error": "not found"}))

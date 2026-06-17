@@ -1,0 +1,166 @@
+{
+  "project": "Talent Cortex — Recruitment Drive Swarm",
+  "product": "Talent Cortex",
+  "updated_at": "2026-06-17T12:00:00Z",
+  "human_baseline": {
+    "rate_usd_per_hour": 100,
+    "note": "Blended senior engineer rate. Hours below are a transparent estimate of manual build effort per task."
+  },
+  "pricing_blended": {
+    "note": "Cost = tokens * (0.7*in_rate + 0.3*out_rate) / 1e6  — assumes 70% input / 30% output tokens. Rates are published USD per 1M tokens.",
+    "claude-opus-4-8": { "in": 15, "out": 75 },
+    "claude-sonnet-4-6": { "in": 3, "out": 15 },
+    "claude-haiku-4-5-20251001": { "in": 1, "out": 5 }
+  },
+  "agents": [
+    {
+      "id": "orchestrator", "name": "Master Orchestrator", "role": "coordinator",
+      "model": "claude-opus-4-8", "effort": "high",
+      "model_why": "Cross-cutting decomposition + synthesis across all lanes",
+      "task": "Decompose build, delegate to team, synthesise", "status": "running",
+      "tokens": 0, "human_hours": 8
+    },
+    {
+      "id": "requirements", "name": "Requirements Gatherer", "role": "requirements",
+      "model": "claude-sonnet-4-6", "effort": "medium",
+      "model_why": "Single-artifact spec synthesis from existing design docs",
+      "task": "Detailed requirement spec -> docs/REQUIREMENTS.md", "status": "done",
+      "tokens": 38370, "human_hours": 8
+    },
+    {
+      "id": "skills", "name": "Skill Creator", "role": "skills",
+      "model": "claude-sonnet-4-6", "effort": "medium",
+      "model_why": "Authoring 3 SKILL.md bundles to an existing template",
+      "task": "jd-matching, panelist-matching, background-check skills", "status": "done",
+      "tokens": 28078, "human_hours": 9
+    },
+    {
+      "id": "database", "name": "Database Engineer", "role": "database",
+      "model": "claude-sonnet-4-6", "effort": "medium",
+      "model_why": "Schema + synthetic data, single subsystem",
+      "task": "synthetic-data + data/ JSON store + generator", "status": "running",
+      "tokens": 0, "human_hours": 6
+    },
+    {
+      "id": "backend", "name": "Backend Team Lead", "role": "backend",
+      "model": "claude-opus-4-8", "effort": "high",
+      "model_why": "Multi-module FastAPI + gated drive engine; correctness-critical",
+      "task": "FastAPI API + gated drive engine + swarm scripts", "status": "running",
+      "tokens": 0, "human_hours": 24
+    },
+    {
+      "id": "frontend", "name": "Frontend Team Lead", "role": "frontend",
+      "model": "claude-sonnet-4-6", "effort": "medium",
+      "model_why": "Frontend already built on frontend branch; integrated as-is",
+      "task": "React/Vite console (imported from frontend branch)", "status": "done",
+      "tokens": 0, "human_hours": 16
+    },
+    {
+      "id": "documentation", "name": "Documentation Agent", "role": "documentation",
+      "model": "claude-sonnet-4-6", "effort": "medium",
+      "model_why": "PRD + tech design + test-case docs from the requirement spec",
+      "task": "PRD, Technical Design, Test Case docs (Talent Cortex)", "status": "running",
+      "tokens": 0, "human_hours": 12
+    },
+    {
+      "id": "testing", "name": "Testing Team Lead", "role": "testing",
+      "model": "claude-sonnet-4-6", "effort": "medium",
+      "model_why": "Gate + transition test cases against acceptance criteria",
+      "task": "pytest suite for gates, transitions, validation", "status": "queued",
+      "tokens": 0, "human_hours": 8
+    },
+    {
+      "id": "reviewer", "name": "Code Reviewer", "role": "review",
+      "model": "claude-sonnet-4-6", "effort": "medium",
+      "model_why": "Diff review for correctness/security/conventions",
+      "task": "Review full diff before commit", "status": "queued",
+      "tokens": 0, "human_hours": 6
+    }
+  ],
+  "tasks": [
+    { "id": "T1", "title": "Requirement spec", "owner": "requirements", "status": "done" },
+    { "id": "T2", "title": "Domain skills (3)", "owner": "skills", "status": "done" },
+    { "id": "T3", "title": "Data layer + synthetic data", "owner": "database", "status": "running" },
+    { "id": "T4", "title": "FastAPI backend + drive engine", "owner": "backend", "status": "running" },
+    { "id": "T5", "title": "Recruitment swarm scripts", "owner": "backend", "status": "running" },
+    { "id": "T6", "title": "Frontend console", "owner": "frontend", "status": "done" },
+    { "id": "T7", "title": "PRD / Tech Design / Test Case docs", "owner": "documentation", "status": "running" },
+    { "id": "T8", "title": "Test suite", "owner": "testing", "status": "queued" },
+    { "id": "T9", "title": "Code review", "owner": "reviewer", "status": "queued" },
+    { "id": "T10", "title": "Flight Deck dashboard", "owner": "orchestrator", "status": "done" }
+  ],
+  "teams": [
+    {
+      "id": "orchestration", "name": "Orchestration", "lead": "Master Orchestrator",
+      "model": "claude-opus-4-8", "status": "running",
+      "members": [
+        { "name": "Master Orchestrator", "role": "coordinator", "model": "claude-opus-4-8", "task": "Decompose the build, delegate to team leads, synthesise results", "status": "running", "tokens": 0 },
+        { "name": "Build Planner", "role": "subagent", "model": "claude-sonnet-4-6", "task": "Sequence tasks, resolve cross-team dependencies, maintain the todo plan", "status": "running", "tokens": 0 },
+        { "name": "Integration Coordinator", "role": "subagent", "model": "claude-sonnet-4-6", "task": "Reconcile frontend/backend/dashboard branches; run cross-team syncs", "status": "running", "tokens": 0 },
+        { "name": "Result Synthesiser", "role": "subagent", "model": "claude-opus-4-8", "task": "Assemble lead outputs into one status + report", "status": "queued", "tokens": 0 }
+      ]
+    },
+    {
+      "id": "reqarch", "name": "Requirements & Architecture", "lead": "Requirements Gatherer",
+      "model": "claude-sonnet-4-6", "status": "done",
+      "members": [
+        { "name": "Requirements Gatherer", "role": "requirements", "model": "claude-sonnet-4-6", "task": "Wrote docs/REQUIREMENTS.md — 10 user stories, 30 Given/When/Then criteria, full status state machine", "status": "done", "tokens": 38370 },
+        { "name": "Tech Architect", "role": "architecture", "model": "claude-opus-4-8", "task": "Topology, module boundaries, data flow, trade-offs", "status": "queued", "tokens": 0 }
+      ]
+    },
+    {
+      "id": "skillsdocs", "name": "Skills & Docs", "lead": "Skill Creator",
+      "model": "claude-sonnet-4-6", "status": "running",
+      "members": [
+        { "name": "Skill Creator", "role": "skills", "model": "claude-sonnet-4-6", "task": "Authored jd-matching-rubric, panelist-matching-policy, background-check-social-vetting", "status": "done", "tokens": 28078 },
+        { "name": "Documentation Agent", "role": "documentation", "model": "claude-sonnet-4-6", "task": "PRD + Technical Design + Test Case docs (Talent Cortex)", "status": "running", "tokens": 0 }
+      ]
+    },
+    {
+      "id": "frontend", "name": "Frontend Team", "lead": "Frontend Team Lead",
+      "model": "claude-sonnet-4-6", "status": "done",
+      "members": [
+        { "name": "New Drive screen", "role": "subagent", "model": "claude-sonnet-4-6", "task": "Paste resume + JD, pre-loaded panelist pool, POST /candidates+/jobs+/drives", "status": "done", "tokens": 0 },
+        { "name": "Drive Status (live)", "role": "subagent", "model": "claude-sonnet-4-6", "task": "Three gated stage rows, polls GET /drives/{id} every 2.5s", "status": "done", "tokens": 0 },
+        { "name": "Readiness Pack", "role": "subagent", "model": "claude-sonnet-4-6", "task": "Verdict banner, JD-fit table, panel slate, DOCX export", "status": "done", "tokens": 0 },
+        { "name": "Panelist Pool", "role": "subagent", "model": "claude-sonnet-4-6", "task": "Pool table + bulk JSON edit, PUT /panelists", "status": "done", "tokens": 0 }
+      ]
+    },
+    {
+      "id": "backend", "name": "Backend Team", "lead": "Backend Team Lead",
+      "model": "claude-opus-4-8", "status": "running",
+      "members": [
+        { "name": "Candidates & Jobs API", "role": "subagent", "model": "claude-sonnet-4-6", "task": "POST /candidates, POST /jobs with 400 validation", "status": "running", "tokens": 0 },
+        { "name": "Panelists API", "role": "subagent", "model": "claude-sonnet-4-6", "task": "GET/PUT /panelists over the JSON pool", "status": "running", "tokens": 0 },
+        { "name": "Drives + Gated Engine", "role": "subagent", "model": "claude-opus-4-8", "task": "POST/GET /drives; enforce gates server-side; status state machine", "status": "running", "tokens": 0 },
+        { "name": "Recruitment Swarm Scripts", "role": "subagent", "model": "claude-sonnet-4-6", "task": "create_recruitment_*.py, upload_recruitment_skills.py, run_recruitment_drive.py", "status": "running", "tokens": 0 }
+      ]
+    },
+    {
+      "id": "data", "name": "Data Team", "lead": "Database Engineer",
+      "model": "claude-sonnet-4-6", "status": "running",
+      "members": [
+        { "name": "Synthetic Data", "role": "subagent", "model": "claude-sonnet-4-6", "task": "candidate-profile, sample_jd, panelist-pool.json", "status": "done", "tokens": 0 },
+        { "name": "JSON Store Schema", "role": "subagent", "model": "claude-sonnet-4-6", "task": "data/ record shapes + drive status enum + migration path", "status": "running", "tokens": 0 }
+      ]
+    },
+    {
+      "id": "testing", "name": "Testing Team", "lead": "Testing Team Lead",
+      "model": "claude-sonnet-4-6", "status": "queued",
+      "members": [
+        { "name": "Unit — gates", "role": "subagent", "model": "claude-sonnet-4-6", "task": "Gate decisions, status transitions, skill-overlap ranking, mode assignment", "status": "queued", "tokens": 0 },
+        { "name": "Integration — API", "role": "subagent", "model": "claude-sonnet-4-6", "task": "Endpoints + drive status model via pytest", "status": "queued", "tokens": 0 },
+        { "name": "E2E — full drive", "role": "subagent", "model": "claude-sonnet-4-6", "task": "Candidate+JD in -> Readiness Pack out, incl. failure paths", "status": "queued", "tokens": 0 }
+      ]
+    },
+    {
+      "id": "review", "name": "Code Review", "lead": "Code Reviewer",
+      "model": "claude-sonnet-4-6", "status": "queued",
+      "members": [
+        { "name": "Correctness Reviewer", "role": "subagent", "model": "claude-sonnet-4-6", "task": "Verify gate enforcement + status transitions match the spec", "status": "queued", "tokens": 0 },
+        { "name": "Security Reviewer", "role": "subagent", "model": "claude-sonnet-4-6", "task": "Secrets, input validation, safe file handling on downloads", "status": "queued", "tokens": 0 },
+        { "name": "Conventions Reviewer", "role": "subagent", "model": "claude-sonnet-4-6", "task": "Beta header, model tiers, idempotent scripts, additive cards", "status": "queued", "tokens": 0 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+JOB TITLE: AI Developer
+DEPARTMENT: Engineering
+LOCATION: Remote (US) / Seattle, WA
+TYPE: Full-Time
+
+ABOUT THE ROLE
+We are looking for an AI Developer to join our engineering team and help design, build, and deploy intelligent systems that power our core product. You will work across the full AI development lifecycle — from data preparation and model development to production deployment and monitoring — collaborating closely with product, data, and infrastructure teams.
+
+RESPONSIBILITIES
+- Design and build LLM-powered applications including RAG pipelines, agents, and tool-use workflows
+- Fine-tune and evaluate open-source and proprietary foundation models for domain-specific tasks
+- Develop and maintain MLOps infrastructure for model training, versioning, deployment, and monitoring
+- Build robust data pipelines to support model training, evaluation, and continuous improvement
+- Define and track evaluation metrics; run A/B experiments to measure model and system performance
+- Collaborate with product and engineering teams to integrate AI capabilities into user-facing features
+- Stay current with AI research and identify opportunities to apply emerging techniques to product problems
+- Document systems, model decisions, and evaluation results clearly for cross-functional stakeholders
+
+REQUIRED QUALIFICATIONS
+- 3+ years of experience in machine learning engineering, AI engineering, or a related role
+- Strong Python programming skills and familiarity with the ML/AI ecosystem (PyTorch, HuggingFace, LangChain or similar)
+- Experience building and deploying production ML or LLM-based systems
+- Solid understanding of NLP fundamentals, transformer architectures, and prompt engineering
+- Familiarity with vector databases (Pinecone, Weaviate, pgvector, or similar)
+- Experience with cloud platforms (AWS, GCP, or Azure) and containerization (Docker, Kubernetes)
+- Strong communication skills and ability to work in a cross-functional environment
+
+PREFERRED QUALIFICATIONS
+- Experience with multi-agent frameworks (LangGraph, AutoGen, CrewAI, or similar)
+- Familiarity with LLM evaluation frameworks (RAGAS, DeepEval, or custom benchmarks)
+- Experience with MLOps tooling (MLflow, DVC, Weights & Biases, SageMaker, Vertex AI)
+- Contributions to open-source AI/ML projects
+- M.S. or Ph.D. in Computer Science, Machine Learning, or a related field
+
+WHAT WE OFFER
+- Competitive salary and equity
+- Remote-first culture with flexible working hours
+- Annual learning & development budget ($2,500)
+- Health, dental, and vision coverage
+- 401(k) with company match
+- Home office setup stipend

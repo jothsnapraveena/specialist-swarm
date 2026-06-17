@@ -1,0 +1,40 @@
+{
+  "_note": "DUMMY data for the Talent Cortex flight deck. Replace once the team pushes real synthetic-data into a branch.",
+  "open_positions": [
+    { "id": "pos_001", "title": "Senior Data Engineer", "location": "Bengaluru", "status": "Open", "openings": 2, "must_have": ["Python", "Spark", "AWS", "SQL"], "nice_to_have": ["Kubernetes", "Airflow"], "applicants": 5 },
+    { "id": "pos_002", "title": "ML Platform Engineer", "location": "Remote", "status": "Open", "openings": 1, "must_have": ["Python", "Kubernetes", "MLOps"], "nice_to_have": ["Ray", "Feature Stores"], "applicants": 3 },
+    { "id": "pos_003", "title": "Frontend Engineer (React)", "location": "Hyderabad", "status": "On Hold", "openings": 1, "must_have": ["React", "TypeScript", "CSS"], "nice_to_have": ["Vite", "Testing Library"], "applicants": 2 },
+    { "id": "pos_004", "title": "Staff Backend Engineer", "location": "Bengaluru", "status": "Filled", "openings": 1, "must_have": ["Go", "PostgreSQL", "gRPC"], "nice_to_have": ["Kafka"], "applicants": 4 }
+  ],
+  "candidates": [
+    { "id": "cand_001", "name": "Ananya Rao", "position": "pos_001", "location": "Bengaluru", "skills": ["Python", "Spark", "AWS", "SQL", "Airflow"], "stage": "Selected", "bg_check": "LEGITIMATE", "jd_score": 91, "result": "Selected" },
+    { "id": "cand_002", "name": "Karthik Menon", "position": "pos_001", "location": "Chennai", "skills": ["Python", "SQL", "AWS"], "stage": "Interviewing", "bg_check": "LEGITIMATE", "jd_score": 78, "result": "Pending" },
+    { "id": "cand_003", "name": "Priya Sharma", "position": "pos_001", "location": "Bengaluru", "skills": ["Python", "Spark", "SQL"], "stage": "Panel Matching", "bg_check": "LEGITIMATE", "jd_score": 82, "result": "Pending" },
+    { "id": "cand_004", "name": "Rahul Verma", "position": "pos_002", "location": "Remote", "skills": ["Python", "Kubernetes", "MLOps", "Ray"], "stage": "JD Match", "bg_check": "LEGITIMATE", "jd_score": 88, "result": "Pending" },
+    { "id": "cand_005", "name": "Sneha Iyer", "position": "pos_002", "location": "Pune", "skills": ["Python", "MLOps"], "stage": "Background Check", "bg_check": "RUNNING", "jd_score": null, "result": "Pending" },
+    { "id": "cand_006", "name": "Vikram Singh", "position": "pos_001", "location": "Delhi", "skills": ["Java", "SQL"], "stage": "Rejected", "bg_check": "LEGITIMATE", "jd_score": 41, "result": "Rejected (Fit)" },
+    { "id": "cand_007", "name": "Meera Nair", "position": "pos_003", "location": "Hyderabad", "skills": ["React", "TypeScript", "CSS", "Vite"], "stage": "Rejected", "bg_check": "REJECTED", "jd_score": null, "result": "Rejected (Background)" },
+    { "id": "cand_008", "name": "Arjun Reddy", "position": "pos_002", "location": "Bengaluru", "skills": ["Python", "Kubernetes", "MLOps"], "stage": "Interviewing", "bg_check": "LEGITIMATE", "jd_score": 84, "result": "Pending" }
+  ],
+  "panelists": [
+    { "id": "pan_001", "name": "Dr. Suresh Kumar", "title": "Principal Engineer", "location": "Bengaluru", "skills": ["Python", "Spark", "AWS", "SQL"], "availability": [ { "date": "2026-06-18", "slots": ["10:00", "14:00"] }, { "date": "2026-06-19", "slots": ["11:00"] } ] },
+    { "id": "pan_002", "name": "Lakshmi Iyer", "title": "Engineering Manager", "location": "Bengaluru", "skills": ["Python", "SQL", "Airflow"], "availability": [ { "date": "2026-06-18", "slots": ["15:00"] } ] },
+    { "id": "pan_003", "name": "James Lee", "title": "Staff ML Engineer", "location": "Remote", "skills": ["Python", "Kubernetes", "MLOps", "Ray"], "availability": [ { "date": "2026-06-19", "slots": ["10:00", "16:00"] } ] },
+    { "id": "pan_004", "name": "Fatima Sheikh", "title": "Senior Data Engineer", "location": "Hyderabad", "skills": ["Spark", "AWS", "SQL"], "availability": [ { "date": "2026-06-20", "slots": ["12:00"] } ] },
+    { "id": "pan_005", "name": "Daniel Park", "title": "Frontend Architect", "location": "Hyderabad", "skills": ["React", "TypeScript", "CSS"], "availability": [ { "date": "2026-06-18", "slots": ["09:00", "13:00"] } ] }
+  ],
+  "interviews": [
+    { "id": "int_001", "candidate": "Ananya Rao", "position": "Senior Data Engineer", "panel": ["Dr. Suresh Kumar", "Lakshmi Iyer"], "mode": "In-Person", "datetime": "2026-06-18 10:00", "skill_overlap": "4/4", "status": "Completed", "result": "Selected", "scheduled_by": "Panelist Agent" },
+    { "id": "int_002", "candidate": "Karthik Menon", "position": "Senior Data Engineer", "panel": ["Dr. Suresh Kumar"], "mode": "Online", "datetime": "2026-06-18 14:00", "skill_overlap": "3/4", "status": "Completed", "result": "Pending", "scheduled_by": "Panelist Agent" },
+    { "id": "int_003", "candidate": "Arjun Reddy", "position": "ML Platform Engineer", "panel": ["James Lee"], "mode": "Online", "datetime": "2026-06-19 10:00", "skill_overlap": "3/3", "status": "Scheduled", "result": "Pending", "scheduled_by": "Panelist Agent" },
+    { "id": "int_004", "candidate": "Priya Sharma", "position": "Senior Data Engineer", "panel": ["Dr. Suresh Kumar", "Fatima Sheikh"], "mode": "In-Person", "datetime": "2026-06-20 12:00", "skill_overlap": "3/4", "status": "Scheduling", "result": "Pending", "scheduled_by": "Panelist Agent" }
+  ],
+  "pipeline_summary": {
+    "background_check": 6,
+    "jd_match": 5,
+    "panel_match": 4,
+    "interviewing": 2,
+    "selected": 1,
+    "rejected": 2
+  }
+}

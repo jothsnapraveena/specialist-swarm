@@ -94,7 +94,7 @@ const TABS = [
   ["overview","Overview"],["teams","Agent Teams"],["pipeline","Pipeline"],
   ["candidates","Candidates"],["positions","Open Positions"],
   ["panelists","Panelists & Slots"],["interviews","Interviews & Results"],
-  ["hub","Project Hub"],["meetings","Meetings"],["optimization","Optimization"]
+  ["integration","Integration"],["hub","Project Hub"],["meetings","Meetings"],["optimization","Optimization"]
 ];
 let STATE=null, TAB="overview", SELECTED_TEAM=null, SELECTED_DOC=0, SELECTED_MEETING=0;
 
@@ -193,6 +193,19 @@ function viewInterviews(){return `<div class="banner">The <b>Panelist Agent</b> 
   <h2 class="sec">Interviews & Results</h2><div class="card"><table><thead><tr><th>Candidate</th><th>Position</th><th>Panel</th><th>Mode</th><th>When</th><th>Overlap</th><th>Status</th><th>Result</th></tr></thead><tbody>
   ${STATE.data.interviews.map(i=>`<tr><td><b>${i.candidate}</b></td><td>${i.position}</td><td>${i.panel.join(", ")}</td><td>${pill(i.mode)}</td><td>${i.datetime}</td><td>${i.skill_overlap}</td><td>${pill(i.status)}</td><td>${pill(i.result)}</td></tr>`).join("")}</tbody></table></div>`;}
 
+function viewIntegration(){
+  const ig=STATE.integration||{};const comps=ig.components||[];const eps=ig.endpoints||[];const live=STATE.live_agents||[];
+  const compCards=comps.map(c=>`<div class="card"><h3 style="margin:0 0 4px">${c.name}</h3><div class="muted" style="font-size:12px">branch: <code>${c.branch}</code></div><div style="margin:8px 0">${pill(c.status)}</div><div class="muted" style="font-size:12.5px">${c.note}</div></div>`).join("");
+  const epRows=eps.map(e=>`<tr><td><span class="pill ${e.backend==='done'?'done':'pending'}" style="font-family:monospace">${e.method}</span> <code>${e.path}</code></td><td>${e.consumer}</td><td>${pill(e.frontend)}</td><td>${pill(e.backend)}</td><td>${e.tracked?'✓':'—'}</td></tr>`).join("");
+  const liveBlock = live.length
+    ? `<div class="card">${live.map(a=>`<div class="member"><span class="led ${a.status}"></span><div><div class="nm">${a.name}</div><div class="muted" style="font-size:12.5px">${a.task||''}</div></div><div class="tk">${pill(a.status)} · ${a.team||''}${a.tokens?' · '+a.tokens.toLocaleString()+' tok':''}</div></div>`).join("")}</div>`
+    : `<div class="card muted">No live backend agent activity yet. When the backend runs with the Tracker (<code>tracker.record_agent(...)</code> writing <code>data/agents.json</code>), agents light up here and on Agent Teams.</div>`;
+  return `<div class="banner">Tracks the three-way integration: <b>Frontend</b> (frontend branch) ↔ <b>Backend</b> (feature branch) ↔ <b>Dashboard</b> (this branch). ${ig.pipeline_link||''}</div>
+  <h2 class="sec">Components</h2><div class="grid cards">${compCards}</div>
+  <h2 class="sec">API Contract — Frontend ↔ Backend</h2>
+  <div class="card"><table><thead><tr><th>Endpoint</th><th>Consumer</th><th>Frontend</th><th>Backend</th><th>Tracked</th></tr></thead><tbody>${epRows}</tbody></table></div>
+  <h2 class="sec">Live Backend Agents</h2>${liveBlock}`;
+}
 function viewHub(){
   const docs=STATE.docs||[];if(!docs.length)return `<div class="card">No docs found yet.</div>`;
   if(SELECTED_DOC>=docs.length)SELECTED_DOC=0;
@@ -226,7 +239,7 @@ function viewOptimization(){
   <h2 class="sec">How these numbers are computed</h2><div class="card"><div class="formula">${o.formula}</div></div>`;
 }
 
-const VIEWS={overview:viewOverview,teams:viewTeams,pipeline:viewPipeline,candidates:viewCandidates,positions:viewPositions,panelists:viewPanelists,interviews:viewInterviews,hub:viewHub,meetings:viewMeetings,optimization:viewOptimization};
+const VIEWS={overview:viewOverview,teams:viewTeams,pipeline:viewPipeline,candidates:viewCandidates,positions:viewPositions,panelists:viewPanelists,interviews:viewInterviews,integration:viewIntegration,hub:viewHub,meetings:viewMeetings,optimization:viewOptimization};
 function render(){renderNav();document.getElementById("view").innerHTML=STATE?VIEWS[TAB]():'<div class="card">Loading…</div>';}
 
 async function load(){

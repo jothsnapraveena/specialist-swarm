@@ -84,6 +84,21 @@ def load_docs():
     return out
 
 
+def load_live_agents():
+    """Live backend agent activity written by tracker.record_agent -> agents.json."""
+    data_dir = os.environ.get("DATA_DIR")
+    if not data_dir:
+        return []
+    p = Path(data_dir) / "agents.json"
+    if not p.exists():
+        return []
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+        return list(d.values()) if isinstance(d, dict) else d
+    except (ValueError, OSError):
+        return []
+
+
 def load_meetings():
     """Read cross-team meeting records from <repo>/docs/meetings/*.md."""
     mdir = HERE.parent / "docs" / "meetings"
@@ -163,11 +178,28 @@ class Handler(BaseHTTPRequestHandler):
             status = load_json("agent_status.json")
             data = load_data()
             opt = compute_optimization(status)
+
+            # Overlay live backend agent activity onto the static team roster
+            live_agents = load_live_agents()
+            teams = status.get("teams", [])
+            if live_agents:
+                by_name = {a.get("name"): a for a in live_agents}
+                for t in teams:
+                    for m in t.get("members", []):
+                        la = by_name.get(m.get("name"))
+                        if la:
+                            m["status"] = la.get("status", m["status"])
+                            if la.get("tokens"):
+                                m["tokens"] = la["tokens"]
+                            if la.get("task"):
+                                m["task"] = la["task"]
             state = {
                 "product": status.get("product", "Talent Cortex"),
                 "updated_at": status.get("updated_at"),
                 "agents": status.get("agents", []),
-                "teams": status.get("teams", []),
+                "teams": teams,
+                "integration": status.get("integration", {}),
+                "live_agents": live_agents,
                 "tasks": status.get("tasks", []),
                 "docs": load_docs(),
                 "meetings": load_meetings(),

@@ -112,6 +112,27 @@ class Tracker:
         self.state["interviews"].append(fields)
         self._save()
 
+    # ---- backend agent activity (lights up the dashboard's Agent Teams) ----
+    def record_agent(self, name, status="running", task=None, tokens=0, team="Backend Team"):
+        """Track a backend/swarm agent working. Writes data/agents.json which the
+        dashboard overlays onto the Agent Teams view (matched by agent name).
+
+        Call it as each specialist runs, e.g.:
+            tk.record_agent("Drives + Gated Engine", status="running",
+                            task="Background check for cand_001")
+            tk.record_agent("Drives + Gated Engine", status="done", tokens=4200)
+        """
+        apath = self.path.parent / "agents.json"
+        agents = {}
+        if apath.exists():
+            try:
+                agents = json.loads(apath.read_text(encoding="utf-8"))
+            except ValueError:
+                agents = {}
+        agents[name] = {"name": name, "status": status, "task": task,
+                        "tokens": tokens, "team": team}
+        apath.write_text(json.dumps(agents, indent=2), encoding="utf-8")
+
     # ---- derived ----
     def _recount(self):
         c = self.state["candidates"]

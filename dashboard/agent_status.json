@@ -162,5 +162,22 @@
         { "name": "Conventions Reviewer", "role": "subagent", "model": "claude-sonnet-4-6", "task": "Beta header, model tiers, idempotent scripts, additive cards", "status": "queued", "tokens": 0 }
       ]
     }
-  ]
+  ],
+  "integration": {
+    "components": [
+      { "name": "Frontend — React Console", "branch": "frontend", "status": "ready", "note": "All 4 screens built; consumes the API contract below" },
+      { "name": "Backend — FastAPI", "branch": "feature", "status": "in-progress", "note": "Endpoints being implemented by backend teammate" },
+      { "name": "Dashboard — Flight Deck", "branch": "dashboard", "status": "ready", "note": "Reads data/progress.json via DATA_DIR seam + Tracker" }
+    ],
+    "endpoints": [
+      { "method": "POST", "path": "/candidates", "consumer": "Frontend", "frontend": "done", "backend": "pending", "tracked": true },
+      { "method": "POST", "path": "/jobs", "consumer": "Frontend", "frontend": "done", "backend": "pending", "tracked": true },
+      { "method": "GET", "path": "/panelists", "consumer": "Frontend", "frontend": "done", "backend": "pending", "tracked": true },
+      { "method": "PUT", "path": "/panelists", "consumer": "Frontend", "frontend": "done", "backend": "pending", "tracked": true },
+      { "method": "POST", "path": "/drives", "consumer": "Frontend", "frontend": "done", "backend": "pending", "tracked": true },
+      { "method": "GET", "path": "/drives/{id}", "consumer": "Frontend (polls 2.5s)", "frontend": "done", "backend": "pending", "tracked": true },
+      { "method": "GET", "path": "/drives/{id}/report", "consumer": "Frontend (json + docx)", "frontend": "done", "backend": "pending", "tracked": true }
+    ],
+    "pipeline_link": "Backend Tracker writes data/progress.json on each gate -> Dashboard renders live"
+  }
 }

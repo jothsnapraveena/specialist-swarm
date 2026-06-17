@@ -27,7 +27,7 @@ export default function App() {
   return (
     <div className="app">
       <nav className="top-nav">
-        <div className="nav-brand">Recruitment Drive Console</div>
+        <div className="nav-brand">TalentCortex Recruitment Agent</div>
         <div className="nav-links">
           <button
             className={`nav-link ${screen === 'new-drive' ? 'active' : ''}`}

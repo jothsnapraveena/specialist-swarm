@@ -1,12 +1,18 @@
 ---
 name: resume-verification-checklist
-description: Background-check checklist for validating whether a candidate resume/profile is legitimate before any JD matching happens. Use whenever asked to verify, validate, or background-check a candidate resume or profile. Trigger on any request to confirm a resume is legitimate, flag inconsistencies, or decide whether a candidate should proceed past intake.
+description: Background-check checklist for validating whether a candidate resume/profile is genuine before any JD matching happens. Use whenever asked to verify, validate, or background-check a candidate resume or profile. Trigger on any request to confirm a resume is legitimate, flag inconsistencies, or decide whether a candidate should proceed past intake.
 ---
 
 # Resume Verification Checklist
 
 You are the gate before anything else happens. Nothing downstream (JD matching,
 panel assignment) should run on a candidate you haven't cleared.
+
+**The only question that matters here is genuineness: is this a real person
+with a real employment history, not a fabricated or impersonated profile?**
+This is not a resume-quality review — gaps, thin sections, and formatting
+issues are not what this check exists to catch. Don't reject a candidate for
+being imperfect; reject only for credible signs the profile isn't real.
 
 ## Step 1 — run the deterministic timeline check first
 
@@ -24,32 +30,64 @@ python tools/verify_resume_dates.py <path-to-json>
 ```
 
 The tool returns `overlaps` (two roles claimed at once), `gaps` (unexplained
-months between roles), and `out_of_order` entries. Treat every reported
-`overlap` as a blocker candidate (see severity table below) — don't re-derive
-date math yourself, the tool is the source of truth for it.
+months between roles), and `out_of_order` entries. Don't re-derive date math
+yourself — the tool is the source of truth for it. **Gaps are never a
+rejection reason on their own, no matter how long** — only `overlaps` feed
+into the blocker rules below.
 
-## Step 2 — qualitative checks (you do these, not the tool)
+## Step 2 — verify LinkedIn presence via web search
 
-| Check | What you're looking for | Severity if failed |
-| --- | --- | --- |
-| Timeline overlap (from tool) | Two concurrent full-time roles with no contracting/freelance explanation | blocker |
-| Timeline gap (from tool) | Gap > 6 months with no narrative explanation anywhere in the resume | minor (gaps happen — only escalate if combined with other flags) |
-| Education plausibility | Degree timeline must fit before the claimed start of full-time work; no claimed degree from an unaccredited or nonexistent-sounding institution presented as a named, ranked university | blocker |
-| Skill corroboration | Every headline skill (e.g., "Kubernetes", "Spanish — fluent") must be supported by at least one role, project, or credential elsewhere in the resume. A skill listed with zero supporting evidence anywhere is a flag, not an automatic blocker | minor (blocker if 3+ uncorroborated headline skills) |
-| Contact info format | Email matches a standard address shape; phone number matches a plausible national format | minor (blocker only if absent entirely) |
-| Internal contradiction | Two different "current employers," conflicting seniority claims, or a title that contradicts the stated years of experience | blocker |
+Use the web search tool (part of your toolset) to confirm this is a real,
+findable person — this is the primary genuineness signal:
+
+- If the resume includes an explicit LinkedIn URL, fetch it directly.
+  Otherwise, search for `"<candidate name>" "<most recent employer>" linkedin`
+  and look for a profile that plausibly belongs to this candidate.
+- **Profile found and consistent** (current employer/title roughly match the
+  resume, allowing for minor wording differences): no flag.
+- **Profile found but contradicts the resume** (different current employer,
+  different title, employment dates that don't reconcile): blocker.
+- **No matching profile can be found at all**: blocker. A real candidate
+  should be findable; treat this as a genuineness failure, not a minor
+  formatting gap.
+- Note what you searched for and what you found (or didn't) in your flags
+  list so the coordinator can see the check was actually performed.
+
+## Step 3 — other checks (informational only — none of these reject)
+
+These are worth surfacing to the hiring manager, but **must never affect the
+verdict**. List them as `minor` flags if present; never escalate them to
+`blocker` regardless of how many accumulate.
+
+| Check | What you're looking for |
+| --- | --- |
+| Timeline gap (from tool) | Any gap between roles, of any length |
+| Education detail | Thin, missing, or unusually-phrased education section |
+| Skill corroboration | A headline skill with no supporting evidence elsewhere in the resume |
+| Contact info format | Missing or oddly-formatted email/phone |
+
+## Blocker conditions (the only things that can reject a candidate)
+
+| Check | What you're looking for |
+| --- | --- |
+| LinkedIn not found | Step 2 found no plausible profile for this candidate |
+| LinkedIn contradiction | Step 2 found a profile, but it contradicts the resume's employer/title/dates |
+| Timeline overlap (from tool) | Two concurrent full-time roles claimed with no contracting/freelance explanation — signals a fabricated timeline |
+| Internal self-contradiction | The resume itself states two different "current employers," or a title that's flatly inconsistent with itself |
 
 ## Verdict
 
-Exactly one blocker ⇒ `REJECTED`. Zero blockers ⇒ `LEGITIMATE`, regardless of
-how many minor flags exist (list them anyway — JD matching may care).
+Exactly one blocker ⇒ `REJECTED`. Zero blockers ⇒ `LEGITIMATE` — regardless
+of how many Step 3 informational flags exist (list them anyway; JD matching
+or the hiring manager may care, but they never drive the verdict).
 
 Output format:
 
 ```
 VERDICT: LEGITIMATE | REJECTED
 FLAGS:
-- [blocker|minor] <flag> — <one-line reason>
+- [blocker] <flag> — <one-line reason>          (only from the blocker table above)
+- [minor] <flag> — <one-line reason>             (informational only, from Step 3)
 ```
 
 If `REJECTED`, stop there — do not produce a JD fit assessment or panel

@@ -43,7 +43,18 @@ SPECIALISTS = [
             "checklist and severity rules)\n"
             "- tools/verify_resume_dates.py — run this via bash for the "
             "timeline math; never hand-compute date overlaps or gaps "
-            "yourself\n\n"
+            "yourself\n"
+            "- Web search/fetch — use it to check the candidate's LinkedIn "
+            "presence and whether it's consistent with the resume, per the "
+            "skill's Step 2. This is the primary genuineness signal: no "
+            "findable profile, or one that contradicts the resume, is a "
+            "blocker\n\n"
+            "The only question that matters is genuineness, not resume "
+            "quality. Employment gaps, thin education detail, and similar "
+            "imperfections are informational only and must never cause a "
+            "rejection by themselves — see the skill's blocker table for "
+            "the short, fixed list of things that actually reject a "
+            "candidate.\n\n"
             "Your output: VERDICT (LEGITIMATE or REJECTED) plus a flagged "
             "list with severity (blocker/minor) per the skill's table. "
             "Exactly one blocker means REJECTED. If REJECTED, do not "
@@ -116,7 +127,15 @@ def main() -> None:
     specialist_ids: dict[str, str] = dict(existing)
     for spec in SPECIALISTS:
         if spec["key"] in existing:
-            print(f"  Reusing {spec['name']:32s} -> {existing[spec['key']]}")
+            agent_id = existing[spec["key"]]
+            current = client.beta.agents.retrieve(agent_id)
+            client.beta.agents.update(
+                agent_id,
+                version=current.version,
+                system=spec["system"],
+                model=spec["model"],
+            )
+            print(f"  Updated  {spec['name']:32s} -> {agent_id} (system prompt synced)")
             continue
 
         agent = client.beta.agents.create(

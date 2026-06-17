@@ -14,6 +14,7 @@ function emptyPanelist() {
 export default function PanelistPool() {
   const [pool, setPool] = useState(null);
   const [error, setError] = useState(null);
+  const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -24,6 +25,7 @@ export default function PanelistPool() {
     const next = { ...pool, panelist_pool: [...pool.panelist_pool] };
     next.panelist_pool[index] = { ...next.panelist_pool[index], [field]: value };
     setPool(next);
+    setSaved(false);
   }
 
   function updateAvailability(index, field, value) {
@@ -32,23 +34,27 @@ export default function PanelistPool() {
     avail[0] = { ...avail[0], [field]: field === "slots" ? Number(value) : value };
     next.panelist_pool[index] = { ...next.panelist_pool[index], availability: avail };
     setPool(next);
+    setSaved(false);
   }
 
   function removePanelist(index) {
     const next = { ...pool, panelist_pool: pool.panelist_pool.filter((_, i) => i !== index) };
     setPool(next);
+    setSaved(false);
   }
 
   function addPanelist() {
     setPool({ ...pool, panelist_pool: [...pool.panelist_pool, emptyPanelist()] });
+    setSaved(false);
   }
 
   async function save() {
     setSaving(true);
     setError(null);
     try {
-      const saved = await api.putPanelists(pool);
-      setPool(saved);
+      const result = await api.putPanelists(pool);
+      setPool(result);
+      setSaved(true);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -56,34 +62,48 @@ export default function PanelistPool() {
     }
   }
 
-  if (error && !pool) return <div className="error-banner">{error}</div>;
-  if (!pool) return <p>Loading panelist pool…</p>;
+  if (error && !pool) return <div className="error-banner">⚠ {error}</div>;
+  if (!pool) {
+    return (
+      <div className="loading-line">
+        <span className="spinner" /> Loading panelist pool…
+      </div>
+    );
+  }
 
   return (
     <div>
+      <span className="eyebrow">⚙ Configuration</span>
       <h1>Panelist Pool</h1>
       <p className="subtitle">
         Skill overlap is computed first, availability second, then mode
-        (In-Person/Online) by comparing locations — see panelist-matching-policy.
+        (In-Person / Online) by comparing the candidate's and panelist's
+        location — see <code>panelist-matching-policy</code>.
       </p>
-      {error && <div className="error-banner">{error}</div>}
+      {error && <div className="error-banner">⚠ {error}</div>}
 
       <div className="card">
-        <label htmlFor="interview_date">Interview date</label>
+        <div className="card-header-row">
+          <h2>📅 Interview window</h2>
+        </div>
         <input
           id="interview_date"
           value={pool.interview_date || ""}
-          onChange={(e) => setPool({ ...pool, interview_date: e.target.value })}
+          onChange={(e) => { setPool({ ...pool, interview_date: e.target.value }); setSaved(false); }}
           placeholder="YYYY-MM-DD"
+          style={{ maxWidth: 220 }}
         />
+      </div>
 
+      <div className="card">
+        <h2>👥 Panelists</h2>
         <table>
           <thead>
             <tr>
               <th>Name</th>
-              <th>Skills (comma-separated)</th>
+              <th>Skills</th>
               <th>Location</th>
-              <th>Availability date</th>
+              <th>Available</th>
               <th>Slots</th>
               <th></th>
             </tr>
@@ -120,18 +140,19 @@ export default function PanelistPool() {
                   />
                 </td>
                 <td>
-                  <button onClick={() => removePanelist(i)}>Remove</button>
+                  <button className="secondary" onClick={() => removePanelist(i)}>Remove</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <div style={{ marginTop: 16, display: "flex", gap: 10 }}>
-          <button onClick={addPanelist}>Add panelist</button>
+        <div className="toolbar">
+          <button className="secondary" onClick={addPanelist}>+ Add panelist</button>
           <button className="primary" onClick={save} disabled={saving}>
             {saving ? "Saving…" : "Save Pool"}
           </button>
+          {saved && <span className="badge badge-green">Saved ✓</span>}
         </div>
       </div>
     </div>

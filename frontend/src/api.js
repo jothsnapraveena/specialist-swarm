@@ -17,6 +17,8 @@ export const api = {
     request("/candidates", { method: "POST", body: JSON.stringify({ text }) }),
   createJob: (text) =>
     request("/jobs", { method: "POST", body: JSON.stringify({ text }) }),
+  listSamples: () => request("/samples"),
+  getSample: (role) => request(`/samples/${role}`),
   getPanelists: () => request("/panelists"),
   putPanelists: (data) =>
     request("/panelists", { method: "PUT", body: JSON.stringify(data) }),

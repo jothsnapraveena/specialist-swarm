@@ -3,23 +3,28 @@ import { api } from "../api.js";
 
 const TERMINAL = new Set(["REJECTED_BACKGROUND", "REJECTED_FIT", "COMPLETED", "FAILED"]);
 
-function StageRow({ icon, name, detail }) {
+const ICONS = {
+  pass: { cls: "pass", glyph: "✓" },
+  fail: { cls: "fail", glyph: "✕" },
+  running: { cls: "running", glyph: "" },
+  pending: { cls: "", glyph: "" },
+};
+
+function Badge({ tone, children }) {
+  return <span className={`badge badge-${tone}`}>{children}</span>;
+}
+
+function StageRow({ state, name, children }) {
+  const icon = ICONS[state];
   return (
     <div className="stage-row">
       <span className={`stage-icon ${icon.cls}`}>{icon.glyph}</span>
-      <span className="stage-name">{name}</span>
-      <span className="stage-detail">{detail}</span>
+      <div className="stage-body">
+        <div className="stage-name">{name}</div>
+        <div className="stage-detail">{children}</div>
+      </div>
     </div>
   );
-}
-
-function iconFor(state) {
-  switch (state) {
-    case "pass": return { cls: "pass", glyph: "✓" };
-    case "fail": return { cls: "fail", glyph: "✗" };
-    case "running": return { cls: "running", glyph: "●" };
-    default: return { cls: "pending", glyph: "○" };
-  }
 }
 
 export default function DriveStatus({ driveId, onViewResults }) {
@@ -49,8 +54,14 @@ export default function DriveStatus({ driveId, onViewResults }) {
     };
   }, [driveId]);
 
-  if (error) return <div className="error-banner">{error}</div>;
-  if (!drive) return <p>Loading drive…</p>;
+  if (error) return <div className="error-banner">⚠ {error}</div>;
+  if (!drive) {
+    return (
+      <div className="loading-line">
+        <span className="spinner" /> Loading drive…
+      </div>
+    );
+  }
 
   const bgState =
     drive.background_check?.verdict === "REJECTED" ? "fail" :
@@ -67,48 +78,68 @@ export default function DriveStatus({ driveId, onViewResults }) {
     drive.status === "RUNNING_PANEL_MATCH" ? "running" : "pending";
 
   const isTerminal = TERMINAL.has(drive.status);
+  const isRejected = drive.status === "REJECTED_BACKGROUND" || drive.status === "REJECTED_FIT";
 
   return (
     <div>
+      <span className="eyebrow">● Stage 2 of 3</span>
       <h1>Drive Status</h1>
-      <p className="subtitle">Drive {drive.drive_id}</p>
+      <p className="subtitle mono">{drive.drive_id}</p>
 
-      {drive.status === "FAILED" && (
-        <div className="error-banner">{drive.error}</div>
-      )}
+      {drive.status === "FAILED" && <div className="error-banner">⚠ {drive.error}</div>}
 
       <div className="card">
-        <StageRow
-          icon={iconFor(bgState)}
-          name="Background Verification"
-          detail={
-            drive.background_check?.verdict
-              ? drive.background_check.verdict
-              : bgState === "running" ? "running…" : "pending"
-          }
-        />
-        <StageRow
-          icon={iconFor(jdState)}
-          name="JD Match"
-          detail={
-            drive.jd_match?.recommendation
-              ? drive.jd_match.recommendation
-              : jdState === "running" ? "running…" : "pending"
-          }
-        />
-        <StageRow
-          icon={iconFor(panelState)}
-          name="Panelist Matching"
-          detail={
-            panelState === "pass" ? "matched" :
-            panelState === "running" ? "running…" : "pending"
-          }
-        />
+        <div className="stepper">
+          <StageRow state={bgState} name="Background Verification">
+            {drive.background_check?.verdict ? (
+              <Badge tone={drive.background_check.verdict === "LEGITIMATE" ? "green" : "red"}>
+                {drive.background_check.verdict}
+              </Badge>
+            ) : bgState === "running" ? (
+              <span><span className="spinner" />running…</span>
+            ) : (
+              "pending"
+            )}
+          </StageRow>
+
+          <StageRow state={jdState} name="JD Match">
+            {drive.jd_match?.recommendation ? (
+              <Badge
+                tone={
+                  drive.jd_match.recommendation === "PROCEED" ? "green" :
+                  drive.jd_match.recommendation === "HOLD" ? "amber" : "red"
+                }
+              >
+                {drive.jd_match.recommendation}
+              </Badge>
+            ) : jdState === "running" ? (
+              <span><span className="spinner" />running…</span>
+            ) : (
+              "pending"
+            )}
+          </StageRow>
+
+          <StageRow state={panelState} name="Panelist Matching">
+            {panelState === "pass" ? (
+              <Badge tone="blue">matched</Badge>
+            ) : panelState === "running" ? (
+              <span><span className="spinner" />running…</span>
+            ) : (
+              "pending"
+            )}
+          </StageRow>
+        </div>
       </div>
+
+      {!isTerminal && (
+        <p className="empty-state">
+          {isRejected ? "" : "The drive is running — this updates automatically, no need to refresh."}
+        </p>
+      )}
 
       {isTerminal && (
         <button className="primary" onClick={() => onViewResults(driveId)}>
-          View Results
+          View Results →
         </button>
       )}
     </div>

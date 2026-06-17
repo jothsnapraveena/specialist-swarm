@@ -26,26 +26,39 @@ export default function App() {
   }
 
   return (
-    <div className="app">
-      <nav className="nav">
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            className={view === tab.key ? "active" : ""}
-            onClick={() => setView(tab.key)}
-            disabled={(tab.key === "status" || tab.key === "results") && !driveId}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </nav>
+    <div className="shell">
+      <header className="topbar">
+        <div className="topbar-inner">
+          <div className="brand">
+            <div className="brand-mark">RD</div>
+            <div>
+              <div className="brand-name">Recruitment Drive</div>
+              <div className="brand-tag">Specialist Swarm Console</div>
+            </div>
+          </div>
+          <nav className="nav">
+            {TABS.map((tab) => (
+              <button
+                key={tab.key}
+                className={view === tab.key ? "active" : ""}
+                onClick={() => setView(tab.key)}
+                disabled={(tab.key === "status" || tab.key === "results") && !driveId}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+      </header>
 
-      {view === "new" && <NewDrive onDriveStarted={handleDriveStarted} />}
-      {view === "status" && driveId && (
-        <DriveStatus driveId={driveId} onViewResults={handleViewResults} />
-      )}
-      {view === "results" && driveId && <Results driveId={driveId} />}
-      {view === "panelists" && <PanelistPool />}
+      <main className="app">
+        {view === "new" && <NewDrive onDriveStarted={handleDriveStarted} />}
+        {view === "status" && driveId && (
+          <DriveStatus driveId={driveId} onViewResults={handleViewResults} />
+        )}
+        {view === "results" && driveId && <Results driveId={driveId} />}
+        {view === "panelists" && <PanelistPool />}
+      </main>
     </div>
   );
 }

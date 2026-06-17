@@ -3,9 +3,9 @@
   "panelist_pool": [
     {
       "id": "p1",
-      "name": "A. Rao",
+      "name": "J. Whitfield",
       "skills": ["Python", "Kubernetes", "System Design", "SQL", "Service Mesh (Istio)"],
-      "location": "Bengaluru",
+      "location": "Seattle, WA, USA",
       "availability": [
         { "date": "2026-06-22", "slots": 1 },
         { "date": "2026-06-23", "slots": 1 }
@@ -13,36 +13,36 @@
     },
     {
       "id": "p2",
-      "name": "M. Singh",
-      "skills": ["Python", "System Design"],
-      "location": "Hyderabad",
+      "name": "C. Bauer",
+      "skills": ["Python", "System Design", "SQL"],
+      "location": "Raleigh, NC, USA",
       "availability": [
         { "date": "2026-06-22", "slots": 2 }
       ]
     },
     {
       "id": "p3",
-      "name": "J. Lee",
-      "skills": ["Python", "SQL", "Mentoring", "CI/CD (Jenkins)"],
-      "location": "Singapore",
+      "name": "T. Nakamura",
+      "skills": ["Python", "Machine Learning", "Statistics", "SQL", "A/B Testing"],
+      "location": "Boston, MA, USA",
       "availability": [
-        { "date": "2026-06-23", "slots": 1 }
+        { "date": "2026-06-22", "slots": 1 }
       ]
     },
     {
       "id": "p4",
-      "name": "K. Verma",
-      "skills": ["Kubernetes", "SQL", "Mentoring"],
-      "location": "Bengaluru",
+      "name": "D. Alvarez",
+      "skills": ["Python", "LLM Fine-tuning", "RAG", "Prompt Engineering", "Vector Databases"],
+      "location": "San Francisco, CA, USA",
       "availability": [
         { "date": "2026-06-22", "slots": 1 }
       ]
     },
     {
       "id": "p5",
-      "name": "R. Fernandes",
-      "skills": ["Docker", "CI/CD (Jenkins)"],
-      "location": "Pune",
+      "name": "M. Okafor",
+      "skills": ["Kubernetes", "SQL", "Mentoring", "CI/CD (Jenkins)"],
+      "location": "Dallas, TX, USA",
       "availability": [
         { "date": "2026-06-22", "slots": 1 }
       ]

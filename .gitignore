@@ -13,3 +13,4 @@ outputs/
 backend/data/
 node_modules/
 frontend/dist/
+*.log

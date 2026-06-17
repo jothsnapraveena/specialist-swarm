@@ -17,6 +17,7 @@ PANELISTS_PATH = DATA_DIR / "panelists.json"
 
 REPO_ROOT = Path(__file__).parent.parent
 SEED_PANELIST_POOL = REPO_ROOT / "synthetic-data" / "panelist-pool.json"
+SAMPLES_DIR = REPO_ROOT / "synthetic-data" / "samples"
 
 
 def _ensure_dirs() -> None:
@@ -76,6 +77,20 @@ def load_panelists() -> dict:
 def save_panelists(data: dict) -> None:
     _ensure_dirs()
     write_json(PANELISTS_PATH, data)
+
+
+def list_samples() -> list[dict]:
+    if not SAMPLES_DIR.exists():
+        return []
+    samples = []
+    for path in sorted(SAMPLES_DIR.glob("*.json")):
+        data = read_json(path, {})
+        samples.append({"role": path.stem, "label": data.get("label", path.stem)})
+    return samples
+
+
+def load_sample(role: str) -> dict | None:
+    return read_json(SAMPLES_DIR / f"{role}.json")
 
 
 def drive_dir(drive_id: str) -> Path:

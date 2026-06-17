@@ -13,6 +13,7 @@ model deviates from the format, the drive still completes, it just won't get
 fine-grained intermediate status updates.
 """
 
+import logging
 import os
 import re
 import traceback
@@ -21,6 +22,8 @@ from pathlib import Path
 from anthropic import Anthropic
 
 from backend import storage
+
+logger = logging.getLogger("recruitment_drive")
 
 REPO_ROOT = Path(__file__).parent.parent
 COORDINATOR_ID_PATH = REPO_ROOT / ".recruitment_coordinator_id"
@@ -65,6 +68,52 @@ def _build_context(candidate_text: str, job_text: str, panelist_pool: dict) -> s
     return "\n\n".join(blocks)
 
 
+def _scan_for_stage_markers(drive_id: str, text: str, source: str, doc: dict, flags: dict) -> None:
+    """
+    Looks for the skills' literal VERDICT:/RECOMMENDATION:/PANEL: markers in
+    a text block and advances doc/flags accordingly. Called against BOTH the
+    coordinator's own narration (agent.message) and the specialist's raw
+    reply (agent.thread_message_received) — the specialist is the reliable
+    source since it's instructed to use the literal format; the coordinator
+    sometimes paraphrases its synthesis instead of echoing the marker.
+    """
+    if not flags["background_seen"]:
+        m = VERDICT_RE.search(text)
+        if m:
+            flags["background_seen"] = True
+            verdict = m.group(1).upper()
+            doc["background_check"] = {"verdict": verdict, "raw": text}
+            logger.info("[%s] BACKGROUND VERIFICATION verdict=%s (source=%s)", drive_id, verdict, source)
+            if verdict == "REJECTED":
+                doc["status"] = "REJECTED_BACKGROUND"
+                flags["terminal"] = True
+            else:
+                doc["status"] = "RUNNING_JD_MATCH"
+            storage.save_drive_status(drive_id, doc)
+
+    if not flags["terminal"] and flags["background_seen"] and not flags["recommendation_seen"]:
+        m = RECOMMENDATION_RE.search(text)
+        if m:
+            flags["recommendation_seen"] = True
+            rec = m.group(1).upper()
+            doc["jd_match"] = {"recommendation": rec, "raw": text}
+            logger.info("[%s] JD MATCH recommendation=%s (source=%s)", drive_id, rec, source)
+            if rec == "REJECT":
+                doc["status"] = "REJECTED_FIT"
+                flags["terminal"] = True
+            else:
+                # PROCEED or HOLD both continue to panel matching — see
+                # backend.md's note on why HOLD isn't terminal.
+                doc["status"] = "RUNNING_PANEL_MATCH"
+            storage.save_drive_status(drive_id, doc)
+
+    if not flags["terminal"] and flags["recommendation_seen"] and doc.get("panel_match") is None:
+        if PANEL_RE.search(text):
+            doc["panel_match"] = {"raw": text}
+            logger.info("[%s] PANEL MATCH captured (source=%s)", drive_id, source)
+            storage.save_drive_status(drive_id, doc)
+
+
 def run_drive(drive_id: str) -> None:
     status = storage.load_drive_status(drive_id)
     if status is None:
@@ -73,11 +122,15 @@ def run_drive(drive_id: str) -> None:
     job_id = status["job_id"]
     doc = _status_doc(drive_id, candidate_id, job_id)
 
+    logger.info("[%s] starting drive (candidate=%s, job=%s)", drive_id, candidate_id, job_id)
+
     if not os.environ.get("ANTHROPIC_API_KEY"):
+        logger.error("[%s] ANTHROPIC_API_KEY not set — failing drive", drive_id)
         _fail(drive_id, doc, "ANTHROPIC_API_KEY is not set. Set it in .env and restart the server.")
         return
 
     if not COORDINATOR_ID_PATH.exists() or not ENVIRONMENT_ID_PATH.exists():
+        logger.error("[%s] coordinator/environment not provisioned — failing drive", drive_id)
         _fail(
             drive_id, doc,
             "Recruitment coordinator not provisioned yet. From the repo root, run: "
@@ -89,6 +142,7 @@ def run_drive(drive_id: str) -> None:
     candidate = storage.load_candidate(candidate_id)
     job = storage.load_job(job_id)
     if candidate is None or job is None:
+        logger.error("[%s] candidate_id or job_id not found", drive_id)
         _fail(drive_id, doc, "candidate_id or job_id not found.")
         return
 
@@ -102,12 +156,14 @@ def run_drive(drive_id: str) -> None:
         doc["status"] = "RUNNING_BACKGROUND_CHECK"
         storage.save_drive_status(drive_id, doc)
         storage.append_drive_event(drive_id, {"type": "status", "status": doc["status"]})
+        logger.info("[%s] -> RUNNING_BACKGROUND_CHECK", drive_id)
 
         session = client.beta.sessions.create(
             agent=coordinator_id,
             environment_id=environment_id,
             title=f"Recruitment Drive — {drive_id}",
         )
+        logger.info("[%s] session %s created against coordinator %s", drive_id, session.id, coordinator_id)
 
         user_message = (
             "A candidate has applied. Run the standard Recruitment Drive "
@@ -119,9 +175,7 @@ def run_drive(drive_id: str) -> None:
             f"{_build_context(candidate['text'], job['text'], panelist_pool)}"
         )
 
-        terminal = False
-        background_seen = False
-        recommendation_seen = False
+        flags = {"terminal": False, "background_seen": False, "recommendation_seen": False}
         final_text_parts: list[str] = []
 
         with client.beta.sessions.events.stream(session.id) as stream:
@@ -133,53 +187,47 @@ def run_drive(drive_id: str) -> None:
                 t = event.type
                 storage.append_drive_event(drive_id, {"type": t})
 
-                if t == "agent.message":
+                if t == "session.thread_created":
+                    logger.info("[%s] specialist thread spawned: %s", drive_id, getattr(event, "agent_name", "?"))
+
+                elif t == "agent.tool_use":
+                    logger.info("[%s] tool call: %s", drive_id, getattr(event, "name", "?"))
+
+                elif t == "agent.message":
+                    # The coordinator's own narration/synthesis — always kept
+                    # for the final transcript, and scanned as a fallback.
                     for block in event.content:
                         if getattr(block, "type", None) != "text":
                             continue
                         text = block.text
                         final_text_parts.append(text)
                         storage.append_drive_event(drive_id, {"type": "text", "text": text})
+                        logger.info("[%s] coordinator: %s", drive_id, text[:160].replace("\n", " "))
+                        _scan_for_stage_markers(drive_id, text, "coordinator", doc, flags)
 
-                        if not background_seen:
-                            m = VERDICT_RE.search(text)
-                            if m:
-                                background_seen = True
-                                verdict = m.group(1).upper()
-                                doc["background_check"] = {"verdict": verdict, "raw": text}
-                                if verdict == "REJECTED":
-                                    doc["status"] = "REJECTED_BACKGROUND"
-                                    terminal = True
-                                else:
-                                    doc["status"] = "RUNNING_JD_MATCH"
-                                storage.save_drive_status(drive_id, doc)
-
-                        if not terminal and background_seen and not recommendation_seen:
-                            m = RECOMMENDATION_RE.search(text)
-                            if m:
-                                recommendation_seen = True
-                                rec = m.group(1).upper()
-                                doc["jd_match"] = {"recommendation": rec, "raw": text}
-                                if rec == "REJECT":
-                                    doc["status"] = "REJECTED_FIT"
-                                    terminal = True
-                                else:
-                                    # PROCEED or HOLD both continue to panel matching —
-                                    # see backend.md's note on why HOLD isn't terminal.
-                                    doc["status"] = "RUNNING_PANEL_MATCH"
-                                storage.save_drive_status(drive_id, doc)
-
-                        if not terminal and recommendation_seen and doc.get("panel_match") is None:
-                            if PANEL_RE.search(text):
-                                doc["panel_match"] = {"raw": text}
-                                storage.save_drive_status(drive_id, doc)
+                elif t == "agent.thread_message_received":
+                    # The specialist's actual reply — this is the reliable
+                    # source for the literal VERDICT:/RECOMMENDATION: markers,
+                    # since the coordinator sometimes paraphrases instead.
+                    from_agent = getattr(event, "from_agent_name", "?")
+                    for block in event.content:
+                        if getattr(block, "type", None) != "text":
+                            continue
+                        text = block.text
+                        storage.append_drive_event(
+                            drive_id, {"type": "specialist_reply", "from_agent_name": from_agent, "text": text}
+                        )
+                        logger.info("[%s] %s replied: %s", drive_id, from_agent, text[:200].replace("\n", " "))
+                        _scan_for_stage_markers(drive_id, text, from_agent, doc, flags)
 
                 elif t == "session.status_idle":
+                    logger.info("[%s] session idle — drive finishing", drive_id)
                     break
 
-        if not terminal:
+        if not flags["terminal"]:
             doc["status"] = "COMPLETED"
         storage.save_drive_status(drive_id, doc)
+        logger.info("[%s] DONE — final status %s", drive_id, doc["status"])
 
         report = {
             "drive_id": drive_id,
@@ -193,4 +241,5 @@ def run_drive(drive_id: str) -> None:
         storage.append_drive_event(drive_id, {"type": "done", "status": doc["status"]})
 
     except Exception as exc:  # noqa: BLE001 — must never crash the server process
+        logger.exception("[%s] drive failed", drive_id)
         _fail(drive_id, doc, f"{type(exc).__name__}: {exc}\n{traceback.format_exc(limit=3)}")

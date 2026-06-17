@@ -9,6 +9,7 @@ Run from the repo root:
 
 import asyncio
 import json
+import logging
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -21,6 +22,9 @@ from backend.models import CandidateCreate, DriveCreate, JobCreate, PanelistPool
 from backend.swarm_runner import run_drive
 
 load_dotenv(Path(__file__).parent.parent / ".env")
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logging.getLogger("recruitment_drive").setLevel(logging.INFO)
 
 TERMINAL_STATUSES = {"REJECTED_BACKGROUND", "REJECTED_FIT", "COMPLETED", "FAILED"}
 
@@ -53,6 +57,19 @@ def create_job(body: JobCreate) -> dict:
         raise HTTPException(400, "Job description text must not be empty.")
     job_id = storage.save_job(body.text)
     return {"job_id": job_id}
+
+
+@app.get("/samples")
+def list_samples() -> list[dict]:
+    return storage.list_samples()
+
+
+@app.get("/samples/{role}")
+def get_sample(role: str) -> dict:
+    sample = storage.load_sample(role)
+    if sample is None:
+        raise HTTPException(404, f"No sample for role '{role}'.")
+    return sample
 
 
 @app.get("/panelists")

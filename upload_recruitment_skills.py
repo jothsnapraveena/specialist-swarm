@@ -51,7 +51,9 @@ def main() -> None:
 
         if display_title in existing_by_title:
             skill_id = existing_by_title[display_title]
-            print(f"Reusing existing skill: {skill_name} ({skill_id})")
+            print(f"Skill {skill_name} exists ({skill_id}) — pushing a new version with current content...")
+            client.beta.skills.versions.create(skill_id, files=files_from_dir(str(skill_dir)))
+            print("  new version pushed (agents reference version=\"latest\", no reattach needed)")
             uploaded[skill_name] = skill_id
         else:
             print(f"Uploading skill: {skill_name}...")
@@ -68,7 +70,7 @@ def main() -> None:
 
         current = client.beta.agents.retrieve(specialist_id)
         already_attached = any(
-            s.get("skill_id") == skill_id for s in (current.skills or [])
+            getattr(s, "skill_id", None) == skill_id for s in (current.skills or [])
         )
         if already_attached:
             print("  already attached (skipping)")

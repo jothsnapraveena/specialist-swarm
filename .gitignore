@@ -1,0 +1,15 @@
+.env
+*.pyc
+__pycache__/
+.specialist_ids.json
+.coordinator_id
+.recruitment_specialist_ids.json
+.recruitment_coordinator_id
+.recruitment_skill_ids.json
+.recruitment_last_session_id
+.environment_id
+.last_session_id
+outputs/
+backend/data/
+node_modules/
+frontend/dist/

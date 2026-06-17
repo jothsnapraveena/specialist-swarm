@@ -57,8 +57,11 @@ RUNNING_BACKGROUND_CHECK
 REJECTED_BACKGROUND          (terminal)
 RUNNING_JD_MATCH
 REJECTED_FIT                 (terminal)
-HOLD_FIT                     (terminal unless re-submitted with a decision)
-RUNNING_PANEL_MATCH
+RUNNING_PANEL_MATCH          (also reached on a HOLD recommendation — the
+                               coordinator proceeds to panel matching on HOLD
+                               so the hiring manager has the full picture;
+                               `jd_match.recommendation` stays "HOLD" in the
+                               report so this isn't confused with PROCEED)
 COMPLETED                    (terminal — report available)
 ```
 

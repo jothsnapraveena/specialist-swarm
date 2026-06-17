@@ -29,13 +29,142 @@ def load_json(name):
     return json.loads(p.read_text(encoding="utf-8"))
 
 
-def load_data():
-    """Recruitment data for the dashboard.
+BACKEND_DATA = os.environ.get("BACKEND_DATA") or str(HERE.parent / "backend" / "data")
 
-    Integration seam: if DATA_DIR is set and contains progress.json (written by
-    the backend's Tracker — see tracker/progress_tracker.py), use it for LIVE
-    progress. Otherwise fall back to the dummy dashboard/data.json.
+_STAGE = {
+    "PENDING": "Background Check",
+    "RUNNING_BACKGROUND_CHECK": "Background Check",
+    "REJECTED_BACKGROUND": "Rejected",
+    "RUNNING_JD_MATCH": "JD Match",
+    "REJECTED_FIT": "Rejected",
+    "HOLD_FIT": "JD Match",
+    "RUNNING_PANEL_MATCH": "Panel Matching",
+    "COMPLETED": "Interviewing",
+    "FAILED": "Rejected",
+}
+_RESULT = {
+    "REJECTED_BACKGROUND": "Rejected (Background)",
+    "REJECTED_FIT": "Rejected (Fit)",
+    "FAILED": "Rejected (Failed)",
+    "COMPLETED": "Pending",
+}
+
+
+def _read(p):
+    try:
+        return json.loads(Path(p).read_text(encoding="utf-8")) if Path(p).exists() else None
+    except (ValueError, OSError):
+        return None
+
+
+def _first_line(text, default=""):
+    for ln in (text or "").splitlines():
+        s = ln.strip().lstrip("#").strip()
+        if s:
+            return s[:80]
+    return default
+
+
+def _candidate_name(backend, cand_id):
+    rec = _read(Path(backend) / "candidates" / (cand_id + ".json"))
+    if not rec:
+        return cand_id
+    txt = rec.get("text", "")
+    for ln in txt.splitlines():
+        s = ln.strip()
+        if s.lower().startswith("name"):
+            nm = s.split(":", 1)[-1].strip()
+            return (nm or cand_id)[:60]
+    return _first_line(txt, cand_id)
+
+
+def build_from_backend(backend):
+    """Map the backend's native flat-JSON store (backend/data/) into the
+    dashboard display shape. Returns None if there are no drives yet."""
+    backend = Path(backend)
+    drives_dir = backend / "drives"
+    if not drives_dir.exists():
+        return None
+    status_files = sorted(drives_dir.glob("*/status.json"))
+    if not status_files:
+        return None
+
+    pan_doc = _read(backend / "panelists.json") or {}
+    pool = pan_doc.get("panelist_pool", []) if isinstance(pan_doc, dict) else (pan_doc or [])
+    panelists = []
+    for p in pool:
+        avail = []
+        for a in p.get("availability", []):
+            slots = a.get("slots")
+            slots = [str(slots) + " slot(s)"] if isinstance(slots, int) else (slots or [])
+            avail.append({"date": a.get("date"), "slots": slots})
+        panelists.append({"id": p.get("id"), "name": p.get("name"), "title": "Panelist",
+                          "location": p.get("location", ""), "skills": p.get("skills", []),
+                          "availability": avail})
+
+    candidates, interviews = [], []
+    summary = {"background_check": 0, "jd_match": 0, "panel_match": 0,
+               "interviewing": 0, "selected": 0, "rejected": 0}
+    job_applicants = {}
+
+    for sf in status_files:
+        st = _read(sf) or {}
+        status = st.get("status", "PENDING")
+        cand_id = st.get("candidate_id", "?")
+        job_id = st.get("job_id")
+        bg = (st.get("background_check") or {}).get("verdict")
+        jd = (st.get("jd_match") or {}).get("recommendation")
+        candidates.append({
+            "id": cand_id, "name": _candidate_name(backend, cand_id),
+            "position": job_id, "location": "", "skills": [],
+            "stage": _STAGE.get(status, "Background Check"),
+            "bg_check": bg or ("RUNNING" if status in ("PENDING", "RUNNING_BACKGROUND_CHECK") else "—"),
+            "jd_score": None, "result": _RESULT.get(status, "Pending"),
+        })
+        if bg or status != "PENDING":
+            summary["background_check"] += 1
+        if jd or status in ("RUNNING_PANEL_MATCH", "COMPLETED"):
+            summary["jd_match"] += 1
+        if status in ("RUNNING_PANEL_MATCH", "COMPLETED"):
+            summary["panel_match"] += 1
+        if status == "COMPLETED":
+            summary["interviewing"] += 1
+            interviews.append({"candidate": _candidate_name(backend, cand_id),
+                               "position": job_id or "—", "panel": ["(see readiness pack)"],
+                               "mode": "—", "datetime": "—", "skill_overlap": "—",
+                               "status": "Completed", "result": "Pending",
+                               "scheduled_by": "Panelist Agent"})
+        if str(status).startswith("REJECTED") or status == "FAILED":
+            summary["rejected"] += 1
+        if job_id:
+            job_applicants[job_id] = job_applicants.get(job_id, 0) + 1
+
+    positions = []
+    jobs_dir = backend / "jobs"
+    if jobs_dir.exists():
+        for jf in sorted(jobs_dir.glob("*.json")):
+            j = _read(jf) or {}
+            jid = j.get("id", jf.stem)
+            positions.append({"id": jid, "title": _first_line(j.get("text"), jid),
+                              "location": "", "status": "Open", "openings": 1,
+                              "must_have": [], "nice_to_have": [],
+                              "applicants": job_applicants.get(jid, 0)})
+
+    return {"_source": str(drives_dir), "candidates": candidates,
+            "open_positions": positions, "panelists": panelists,
+            "interviews": interviews, "pipeline_summary": summary}
+
+
+def load_data():
+    """Recruitment data for the dashboard, in priority order:
+    1. Live from the backend's native store (backend/data/) via build_from_backend
+    2. A progress.json written by the Tracker (DATA_DIR seam)
+    3. The bundled dummy dashboard/data.json
     """
+    backend = build_from_backend(BACKEND_DATA)
+    if backend:
+        return backend
+
     data_dir = os.environ.get("DATA_DIR")
     if data_dir:
         p = Path(data_dir) / "progress.json"
@@ -45,7 +174,7 @@ def load_data():
                 live.setdefault("_source", str(p))
                 return live
             except (ValueError, OSError):
-                pass  # fall back to dummy on malformed/locked file
+                pass
     return load_json("data.json")
 
 
@@ -216,7 +345,14 @@ class Handler(BaseHTTPRequestHandler):
         rel = self.path.lstrip("/").split("?")[0]
         f = HERE / rel
         if f.exists() and f.is_file():
-            ctype = "application/json" if f.suffix == ".json" else "text/plain"
+            ctypes = {
+                ".html": "text/html; charset=utf-8",
+                ".css": "text/css; charset=utf-8",
+                ".js": "application/javascript; charset=utf-8",
+                ".json": "application/json",
+                ".svg": "image/svg+xml",
+            }
+            ctype = ctypes.get(f.suffix, "text/plain; charset=utf-8")
             return self._send(200, f.read_text(encoding="utf-8"), ctype)
 
         self._send(404, json.dumps({"error": "not found"}))

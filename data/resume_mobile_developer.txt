@@ -1,0 +1,37 @@
+PRIYA NAIR
+Mobile Developer
+priya.nair@email.com | +1-415-555-0192 | linkedin.com/in/priyanair | github.com/priyanair
+San Francisco, CA
+
+SUMMARY
+Mobile developer with 5 years of experience building cross-platform and native iOS/Android applications. Passionate about crafting smooth, high-performance user experiences with clean architecture.
+
+EXPERIENCE
+
+Senior Mobile Developer — PixelShift Labs, San Francisco, CA (2022 – Present)
+- Led development of a fintech app serving 200K+ users on iOS and Android using React Native
+- Reduced app crash rate by 40% through improved error boundaries and crash analytics integration
+- Implemented offline-first architecture with Redux Persist and SQLite for seamless data sync
+- Mentored 3 junior developers and conducted weekly code reviews
+
+Mobile Developer — Appify Inc., Austin, TX (2020 – 2022)
+- Built and maintained 4 production apps using Flutter and Dart
+- Integrated REST APIs, push notifications (FCM/APNs), and in-app purchases (StoreKit, Google Billing)
+- Improved CI/CD pipeline with Fastlane and GitHub Actions, cutting release time by 60%
+
+Junior iOS Developer — BlueSky Apps, Remote (2019 – 2020)
+- Developed native iOS features in Swift using UIKit and Core Data
+- Collaborated with designers to implement pixel-perfect UI from Figma specs
+
+SKILLS
+Languages: Swift, Kotlin, Dart, JavaScript/TypeScript
+Frameworks: React Native, Flutter, SwiftUI, Jetpack Compose
+Tools: Xcode, Android Studio, Fastlane, Firebase, Sentry, TestFlight
+Architecture: MVVM, Clean Architecture, Redux, BLoC
+
+EDUCATION
+B.S. Computer Science — University of Texas at Austin, 2019
+
+PROJECTS
+- TripTrack (personal): Offline travel planner app, 8K+ downloads on App Store
+- OpenBudget (open source): Flutter budgeting app with 500+ GitHub stars

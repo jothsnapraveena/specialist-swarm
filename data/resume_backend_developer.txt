@@ -1,0 +1,39 @@
+MARCUS OSEI
+Backend Developer
+marcus.osei@email.com | +1-646-555-0347 | linkedin.com/in/marcosei | github.com/marcosei
+New York, NY
+
+SUMMARY
+Backend developer with 6 years of experience designing and building scalable distributed systems and APIs. Strong focus on reliability, observability, and developer productivity.
+
+EXPERIENCE
+
+Senior Backend Engineer — Stratum Financial, New York, NY (2022 – Present)
+- Architected a high-throughput payment processing service handling 50K transactions/sec using Go and Kafka
+- Reduced API p99 latency from 420ms to 85ms by profiling hot paths and introducing Redis caching layers
+- Led migration from monolith to microservices, decomposing 3 core domains with zero downtime
+- Designed and enforced API contracts using OpenAPI 3.0 across 8 teams
+
+Backend Developer — CloudNest Inc., Remote (2020 – 2022)
+- Built RESTful and gRPC services in Python (FastAPI) backed by PostgreSQL and DynamoDB
+- Implemented role-based access control (RBAC) and OAuth 2.0 / JWT authentication flows
+- Automated infrastructure provisioning with Terraform and AWS CDK
+- Wrote load tests with Locust; identified and fixed N+1 query bottlenecks across the data layer
+
+Software Engineer — DataBridge, Toronto, ON (2018 – 2020)
+- Developed data ingestion pipelines using Apache Airflow and PySpark processing 2TB/day
+- Maintained internal Node.js microservices and REST APIs consumed by web and mobile clients
+
+SKILLS
+Languages: Go, Python, Node.js, SQL
+Frameworks: FastAPI, Express, Gin, gRPC
+Databases: PostgreSQL, MySQL, Redis, DynamoDB, MongoDB
+Infrastructure: AWS (ECS, Lambda, RDS, SQS), Terraform, Docker, Kubernetes
+Observability: Prometheus, Grafana, Datadog, OpenTelemetry
+
+EDUCATION
+B.Eng. Software Engineering — University of Waterloo, 2018
+
+CERTIFICATIONS
+- AWS Certified Solutions Architect – Associate
+- Certified Kubernetes Application Developer (CKAD)

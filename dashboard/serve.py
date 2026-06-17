@@ -29,6 +29,26 @@ def load_json(name):
     return json.loads(p.read_text(encoding="utf-8"))
 
 
+def load_data():
+    """Recruitment data for the dashboard.
+
+    Integration seam: if DATA_DIR is set and contains progress.json (written by
+    the backend's Tracker — see tracker/progress_tracker.py), use it for LIVE
+    progress. Otherwise fall back to the dummy dashboard/data.json.
+    """
+    data_dir = os.environ.get("DATA_DIR")
+    if data_dir:
+        p = Path(data_dir) / "progress.json"
+        if p.exists():
+            try:
+                live = json.loads(p.read_text(encoding="utf-8"))
+                live.setdefault("_source", str(p))
+                return live
+            except (ValueError, OSError):
+                pass  # fall back to dummy on malformed/locked file
+    return load_json("data.json")
+
+
 DOC_CATEGORIES = [
     ("Product", ["PRD", "TECHNICAL-DESIGN", "TECH-DESIGN", "TEST-CASE", "TESTCASES"]),
     ("Specs", ["REQUIREMENTS"]),
@@ -141,7 +161,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith("/api/state"):
             status = load_json("agent_status.json")
-            data = load_json("data.json")
+            data = load_data()
             opt = compute_optimization(status)
             state = {
                 "product": status.get("product", "Talent Cortex"),

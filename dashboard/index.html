@@ -246,11 +246,17 @@ function viewOptimization(){
 const VIEWS={overview:viewOverview,architecture:viewArchitecture,teams:viewTeams,pipeline:viewPipeline,candidates:viewCandidates,positions:viewPositions,panelists:viewPanelists,interviews:viewInterviews,integration:viewIntegration,hub:viewHub,meetings:viewMeetings,optimization:viewOptimization};
 function render(){renderNav();document.getElementById("view").innerHTML=STATE?VIEWS[TAB]():'<div class="card">Loading…</div>';}
 
+let LAST="";
 async function load(){
-  try{const r=await fetch("/api/state");STATE=await r.json();document.getElementById("clock").textContent="updated "+new Date().toLocaleTimeString();render();}
-  catch(e){document.getElementById("view").innerHTML='<div class="card">Could not reach server. Run: <code>python dashboard/serve.py</code></div>';}
+  try{
+    const r=await fetch("/api/state");
+    const txt=await r.text();
+    document.getElementById("clock").textContent="updated "+new Date().toLocaleTimeString();
+    if(txt===LAST) return;            // nothing changed -> skip re-render (no flicker)
+    LAST=txt; STATE=JSON.parse(txt); render();
+  }catch(e){document.getElementById("view").innerHTML='<div class="card">Could not reach server. Run: <code>python dashboard/serve.py</code></div>';}
 }
-load();setInterval(load,3000);render();
+load();setInterval(load,3000);
 </script>
 </body>
 </html>

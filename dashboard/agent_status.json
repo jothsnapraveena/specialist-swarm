@@ -59,8 +59,8 @@
       "id": "documentation", "name": "Documentation Agent", "role": "documentation",
       "model": "claude-sonnet-4-6", "effort": "medium",
       "model_why": "PRD + tech design + test-case docs from the requirement spec",
-      "task": "PRD, Technical Design, Test Case docs (Talent Cortex)", "status": "running",
-      "tokens": 0, "human_hours": 12
+      "task": "PRD, Technical Design, Test Case docs (Talent Cortex)", "status": "done",
+      "tokens": 36047, "human_hours": 12
     },
     {
       "id": "testing", "name": "Testing Team Lead", "role": "testing",
@@ -84,7 +84,7 @@
     { "id": "T4", "title": "FastAPI backend + drive engine", "owner": "backend", "status": "running" },
     { "id": "T5", "title": "Recruitment swarm scripts", "owner": "backend", "status": "running" },
     { "id": "T6", "title": "Frontend console", "owner": "frontend", "status": "done" },
-    { "id": "T7", "title": "PRD / Tech Design / Test Case docs", "owner": "documentation", "status": "running" },
+    { "id": "T7", "title": "PRD / Tech Design / Test Case docs", "owner": "documentation", "status": "done" },
     { "id": "T8", "title": "Test suite", "owner": "testing", "status": "queued" },
     { "id": "T9", "title": "Code review", "owner": "reviewer", "status": "queued" },
     { "id": "T10", "title": "Flight Deck dashboard", "owner": "orchestrator", "status": "done" }
@@ -113,7 +113,7 @@
       "model": "claude-sonnet-4-6", "status": "running",
       "members": [
         { "name": "Skill Creator", "role": "skills", "model": "claude-sonnet-4-6", "task": "Authored jd-matching-rubric, panelist-matching-policy, background-check-social-vetting", "status": "done", "tokens": 28078 },
-        { "name": "Documentation Agent", "role": "documentation", "model": "claude-sonnet-4-6", "task": "PRD + Technical Design + Test Case docs (Talent Cortex)", "status": "running", "tokens": 0 }
+        { "name": "Documentation Agent", "role": "documentation", "model": "claude-sonnet-4-6", "task": "PRD + Technical Design + Test Case docs (Talent Cortex)", "status": "done", "tokens": 36047 }
       ]
     },
     {

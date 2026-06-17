@@ -1,0 +1,51 @@
+{
+  "interview_date": "2026-06-22",
+  "panelist_pool": [
+    {
+      "id": "p1",
+      "name": "A. Rao",
+      "skills": ["Python", "Kubernetes", "System Design", "SQL", "Service Mesh (Istio)"],
+      "location": "Bengaluru",
+      "availability": [
+        { "date": "2026-06-22", "slots": 1 },
+        { "date": "2026-06-23", "slots": 1 }
+      ]
+    },
+    {
+      "id": "p2",
+      "name": "M. Singh",
+      "skills": ["Python", "System Design"],
+      "location": "Hyderabad",
+      "availability": [
+        { "date": "2026-06-22", "slots": 2 }
+      ]
+    },
+    {
+      "id": "p3",
+      "name": "J. Lee",
+      "skills": ["Python", "SQL", "Mentoring", "CI/CD (Jenkins)"],
+      "location": "Singapore",
+      "availability": [
+        { "date": "2026-06-23", "slots": 1 }
+      ]
+    },
+    {
+      "id": "p4",
+      "name": "K. Verma",
+      "skills": ["Kubernetes", "SQL", "Mentoring"],
+      "location": "Bengaluru",
+      "availability": [
+        { "date": "2026-06-22", "slots": 1 }
+      ]
+    },
+    {
+      "id": "p5",
+      "name": "R. Fernandes",
+      "skills": ["Docker", "CI/CD (Jenkins)"],
+      "location": "Pune",
+      "availability": [
+        { "date": "2026-06-22", "slots": 1 }
+      ]
+    }
+  ]
+}

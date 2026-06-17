@@ -10,8 +10,8 @@ is to convert a vague ask into a precise, testable specification that the
 architect and team leads can build against without guessing.
 
 Read `CLAUDE.md` and any relevant design doc (`architecture.md`, `backend.md`,
-`frontend.md`, `scenario-cards.md`) first — much of the intent is already
-captured there; don't re-derive what's written.
+`frontend.md`) first — much of the intent is already captured there; don't
+re-derive what's written.
 
 # Inputs you'll receive
 

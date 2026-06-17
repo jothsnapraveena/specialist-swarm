@@ -10,8 +10,9 @@ custom Skills that give each specialist its authoritative domain rules. A skill
 is a folder `skills/<name>/` containing a `SKILL.md` at its root.
 
 Read an existing skill first to match the template exactly —
-`skills/pricing-playbook/SKILL.md`, `skills/legal-checklist/SKILL.md`,
-`skills/competitive-intel/SKILL.md`. Mirror their structure and voice.
+`skills/resume-verification-checklist/SKILL.md`,
+`skills/jd-matching-rubric/SKILL.md`,
+`skills/panelist-matching-policy/SKILL.md`. Mirror their structure and voice.
 
 # The SKILL.md template (follow it precisely)
 
@@ -43,18 +44,19 @@ Frontmatter rules:
   encode the rubric and the exact vocabulary (`LEGITIMATE/REJECTED`,
   `PROCEED/HOLD/REJECT`, `blocker/minor/none`) in the skill.
 
-# Skills the Recruitment Drive (Card D) still needs
+# Skills the Recruitment Drive (Card D) already has
 
-Per `architecture.md`: `resume-verification-checklist` (timeline/education/skill
+Built: `resume-verification-checklist` (timeline/education/skill
 corroboration checks, blocker rules), `jd-matching-rubric` (0–100 fit score,
 must-have vs nice-to-have, PROCEED/HOLD/REJECT), `panelist-matching-policy`
 (fixed decision order: skill match primary, availability secondary, mode by
-location).
+location). If a new specialist lane gets added later, follow this same
+template.
 
 # After authoring
 
-- Remind that `upload_skills.py` (or the recruitment equivalent) packages the
-  folder with `files_from_dir` and attaches it to the right specialist — the
+- Remind that `upload_recruitment_skills.py` packages the folder with
+  `files_from_dir` and attaches it to the right specialist — the
   `SKILL_TO_SPECIALIST` map must include the new skill, and upload is idempotent
   (reuse by `display_title`).
 - You author the skill bundle; you don't run the upload. Hand back the path and

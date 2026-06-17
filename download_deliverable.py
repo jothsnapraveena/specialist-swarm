@@ -1,9 +1,9 @@
 """
-Download every file produced by a Deal Desk session.
+Download every file produced by a swarm session.
 
-By default reads the session ID from `.last_session_id` (written by
-run_deal_desk.py). You can also pass the session ID as a CLI argument
-to grab files from any older session.
+By default reads the session ID from `.recruitment_last_session_id` (written
+by run_recruitment_drive.py). You can also pass the session ID as a CLI
+argument to grab files from any older session.
 
 Usage:
     python download_deliverable.py                       # last run
@@ -24,10 +24,10 @@ def main() -> None:
     if len(sys.argv) > 1:
         session_id = sys.argv[1].strip()
     else:
-        last = Path(".last_session_id")
+        last = Path(".recruitment_last_session_id")
         if not last.exists():
             raise SystemExit(
-                "No session ID provided and `.last_session_id` not found.\n"
+                "No session ID provided and `.recruitment_last_session_id` not found.\n"
                 "Usage: python download_deliverable.py <session_id>"
             )
         session_id = last.read_text().strip()

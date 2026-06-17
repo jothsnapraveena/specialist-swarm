@@ -1,0 +1,22 @@
+{
+  "name": "Priya Nair",
+  "location": "Bengaluru",
+  "email": "priya.nair.dev@gmail.com",
+  "phone": "+91 98765 43210",
+  "skills": [
+    "Python",
+    "Kubernetes",
+    "System Design",
+    "SQL",
+    "Distributed Systems",
+    "Service Mesh (Istio)",
+    "Docker",
+    "CI/CD (Jenkins)",
+    "Mentoring"
+  ],
+  "employment_history": [
+    { "company": "StartCo", "title": "Junior Developer", "start": "2017-07", "end": "2018-12" },
+    { "company": "Acme Cloud", "title": "Software Engineer", "start": "2019-01", "end": "2021-06" },
+    { "company": "Globex Systems", "title": "Senior Software Engineer", "start": "2021-08", "end": "present" }
+  ]
+}
